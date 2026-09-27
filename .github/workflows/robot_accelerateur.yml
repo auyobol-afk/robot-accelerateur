@@ -1,0 +1,49 @@
+name: Robot Accélérateur - Scan quotidien
+
+on:
+  schedule:
+    # Tous les jours ouvrés à 21h00 UTC = 23h00 CEST (après clôture US)
+    - cron: '0 21 * * 1-5'
+  workflow_dispatch:  # Permet de lancer manuellement depuis GitHub
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install yfinance pandas numpy
+
+      - name: Run Robot Accélérateur
+        run: |
+          python Robot_Accelerateur.py
+
+      - name: Upload report as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: robot-report-${{ github.run_number }}
+          path: |
+            report_latest.csv
+            Robot_Accelerateur_Report_*.csv
+          retention-days: 30
+
+      - name: Commit latest report (optional)
+        run: |
+          git config --local user.email "robot@github-actions.com"
+          git config --local user.name "Robot Accelerateur"
+          git add report_latest.csv || true
+          git diff --quiet && git diff --staged --quiet || git commit -m "Rapport quotidien Robot Accélérateur $(date +%Y-%m-%d)" || true
+          git push || true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
