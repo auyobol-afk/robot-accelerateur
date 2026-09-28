@@ -35,6 +35,6 @@ jobs:
         run: |
           git config --local user.email "robot@github-actions.com"
           git config --local user.name "Robot Accelerateur"
-          git add report_latest.csv rapport.html || true
+          git add report_latest.csv rapport.html rapport_mouvements.html || true
           git diff --quiet && git diff --staged --quiet || git commit -m "Rapport quotidien $(date -u +%Y-%m-%d)" || true
           git push || true

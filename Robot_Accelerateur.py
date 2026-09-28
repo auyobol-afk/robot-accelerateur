@@ -178,9 +178,77 @@ def run_robot():
         time.sleep(CONFIG["sleep_between_tickers"])
     print("Scan termine : %s | Setups : %s" % (total, len(results)))
     write_html(results, total)
+    pre, close_moves = scan_big_moves()
+    write_moves_html(pre, close_moves)
+    print("Mouvements pre-market :", len(pre))
+    print("Mouvements cloture :", len(close_moves))
     pd.DataFrame(results).to_csv("report_latest.csv", index=False)
     if not results:
         print("Aucun setup aujourd'hui.")
+
+
+
+MOVE_THRESHOLD = 3.0
+
+def scan_big_moves():
+    pre, close_moves = [], []
+    for ticker in UNIVERSE:
+        try:
+            info = yf.Ticker(ticker).info
+            prev = info.get("previousClose") or info.get("regularMarketPreviousClose")
+            if not prev:
+                continue
+            pre_px = info.get("preMarketPrice")
+            post_px = info.get("postMarketPrice")
+            last_px = info.get("regularMarketPrice") or info.get("currentPrice")
+            if pre_px and prev:
+                pct = (float(pre_px) - float(prev)) / float(prev) * 100
+                if abs(pct) >= MOVE_THRESHOLD:
+                    pre.append({"Ticker": ticker, "Sens": "HAUSSE" if pct > 0 else "BAISSE",
+                                "Pct": round(pct, 2), "Prix": round(float(pre_px), 2), "Ref": round(float(prev), 2)})
+            if last_px and prev:
+                pct = (float(last_px) - float(prev)) / float(prev) * 100
+                if abs(pct) >= MOVE_THRESHOLD:
+                    close_moves.append({"Ticker": ticker, "Sens": "HAUSSE" if pct > 0 else "BAISSE",
+                                        "Pct": round(pct, 2), "Prix": round(float(last_px), 2), "Ref": round(float(prev), 2),
+                                        "Session": "Cloture"})
+            if post_px and prev:
+                pct = (float(post_px) - float(prev)) / float(prev) * 100
+                if abs(pct) >= MOVE_THRESHOLD:
+                    close_moves.append({"Ticker": ticker, "Sens": "HAUSSE" if pct > 0 else "BAISSE",
+                                        "Pct": round(pct, 2), "Prix": round(float(post_px), 2), "Ref": round(float(prev), 2),
+                                        "Session": "After hours"})
+        except Exception:
+            pass
+        time.sleep(0.15)
+    pre.sort(key=lambda x: abs(x["Pct"]), reverse=True)
+    close_moves.sort(key=lambda x: abs(x["Pct"]), reverse=True)
+    return pre, close_moves
+
+def write_moves_html(pre, close_moves):
+    lines = ["<html><head><meta charset='utf-8'><title>Gros mouvements</title></head><body>",
+             "<h1>Robot Accelerateur - Gros mouvements</h1>",
+             "<p>%s</p>" % datetime.now().strftime("%Y-%m-%d %H:%M"),
+             "<p>Seuil : variation d au moins 3%% vs veille</p>",
+             "<h2>Avant ouverture (pre-market)</h2>"]
+    if not pre:
+        lines.append("<p>Aucun gros mouvement pre-market.</p>")
+    else:
+        lines.append("<ul>")
+        for r in pre:
+            lines.append("<li>%s | %s | %s%% | Prix %s | Veille %s</li>" % (r["Ticker"], r["Sens"], r["Pct"], r["Prix"], r["Ref"]))
+        lines.append("</ul>")
+    lines.append("<h2>Cloture / after hours</h2>")
+    if not close_moves:
+        lines.append("<p>Aucun gros mouvement a la fermeture.</p>")
+    else:
+        lines.append("<ul>")
+        for r in close_moves:
+            lines.append("<li>%s | %s | %s%% | %s | Prix %s | Veille %s</li>" % (r["Ticker"], r["Sens"], r["Pct"], r.get("Session",""), r["Prix"], r["Ref"]))
+        lines.append("</ul>")
+    lines.append("</body></html>")
+    open("rapport_mouvements.html", "w", encoding="utf-8").write("\n".join(lines))
+
 
 if __name__ == "__main__":
     run_robot()
