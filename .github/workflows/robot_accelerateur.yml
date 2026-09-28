@@ -5,6 +5,9 @@ on:
     - cron: '0 21 * * 1-5'
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   scan:
     runs-on: ubuntu-latest
@@ -28,28 +31,10 @@ jobs:
         run: |
           python Robot_Accelerateur.py
 
-      - name: Upload report as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: robot-report-${{ github.run_number }}
-          path: |
-            report_latest.csv
-            report_body.txt
-            Robot_Accelerateur_Report_*.csv
-          if-no-files-found: ignore
-          retention-days: 30
-
-      - name: Send daily email
-        if: always()
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: smtp.gmail.com
-          server_port: 465
-          secure: true
-          username: ${{ secrets.EMAIL_USERNAME }}
-          password: ${{ secrets.EMAIL_PASSWORD }}
-          subject: Robot Accelerateur - Rapport quotidien
-          to: ${{ secrets.EMAIL_USERNAME }}
-          from: Robot Accelerateur
-          body: file://report_body.txt
-          ignore_cert: true
+      - name: Publish report to repository
+        run: |
+          git config --local user.email "robot@github-actions.com"
+          git config --local user.name "Robot Accelerateur"
+          git add report_latest.csv rapport.html || true
+          git diff --quiet && git diff --staged --quiet || git commit -m "Rapport quotidien $(date -u +%Y-%m-%d)" || true
+          git push || true

@@ -257,7 +257,21 @@ def run_robot():
     with open("report_body.txt", "w", encoding="utf-8") as f:
         f.write("Robot Accelerateur - Rapport quotidien\n")
         f.write("Setups valides : %s\n\n" % len(results))
-        if not results:
+    
+    html = ["<html><head><meta charset=utf-8><title>Robot Accelerateur</title></head><body>"]
+    html.append("<h1>Robot Accelerateur</h1>")
+    html.append("<p>Setups : %s</p>" % len(results))
+    if not results:
+        html.append("<p>Aucun setup aujourd'hui.</p>")
+    else:
+        html.append("<ul>")
+        for r in results:
+            html.append("<li>%s | %s | %s | RelVol %s | %s</li>" % (r["Ticker"], r["Direction"], r["Price"], r["Rel_Volume"], r.get("Pattern")))
+        html.append("</ul>")
+    html.append("</body></html>")
+    open("rapport.html","w",encoding="utf-8").write("\n".join(html))
+
+    if not results:
             f.write("Aucun setup aujourd'hui.\n")
         else:
             for r in results:
