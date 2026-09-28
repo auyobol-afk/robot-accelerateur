@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 =============================================================================
- ROBOT ACCÉLÉRATEUR v2.1 - Scanner quotidien US Options
+ ROBOT ACCÉLÉRATEUR v2.2 - Scanner quotidien US Options
 =============================================================================
  Critères STRICTS :
  1. VOLUME       : Relative Volume >= 1.5 + expansion
@@ -24,10 +24,10 @@ warnings.filterwarnings("ignore")
 CONFIG = {
     "min_beta": 1.5,
     "min_avg_volume": 500_000,
-    "min_rel_volume": 1.5,
+    "min_rel_volume": 1.2,
     "min_price": 5.0,
-    "stoch_low": 20,
-    "stoch_high": 80,
+    "stoch_low": 15,
+    "stoch_high": 85,
     "macd_fast": 12,
     "macd_slow": 26,
     "macd_signal": 9,
@@ -156,18 +156,16 @@ def detect_chart_patterns(df):
     return {"pattern": None, "direction": None, "strength": 0, "candle": None}
 
 def check_long_setup(row, prev_row, pattern_info):
-    vol_ok = (row["Rel_Volume"] >= CONFIG["min_rel_volume"]) and bool(row["Volume_Expansion"])
-    macd_ok = (row["MACD"] > row["MACD_Signal"]) and (row["MACD_Hist"] > prev_row["MACD_Hist"]) and (row["MACD_Hist"] > 0)
-    stoch_ok = (CONFIG["stoch_low"] <= row["Stoch_K"] <= CONFIG["stoch_high"]) and (row["Stoch_K"] > row["Stoch_D"])
-    pattern_ok = pattern_info["direction"] == "LONG" and pattern_info["strength"] >= 2
-    return vol_ok and macd_ok and stoch_ok and pattern_ok
+    vol_ok = row["Rel_Volume"] >= CONFIG["min_rel_volume"]
+    macd_ok = row["MACD"] > row["MACD_Signal"]
+    stoch_ok = (CONFIG["stoch_low"] <= row["Stoch_K"] <= CONFIG["stoch_high"]) and (row["Stoch_K"] >= row["Stoch_D"])
+    return vol_ok and macd_ok and stoch_ok
 
 def check_short_setup(row, prev_row, pattern_info):
-    vol_ok = (row["Rel_Volume"] >= CONFIG["min_rel_volume"]) and bool(row["Volume_Expansion"])
-    macd_ok = (row["MACD"] < row["MACD_Signal"]) and (row["MACD_Hist"] < prev_row["MACD_Hist"]) and (row["MACD_Hist"] < 0)
-    stoch_ok = (CONFIG["stoch_low"] <= row["Stoch_K"] <= CONFIG["stoch_high"]) and (row["Stoch_K"] < row["Stoch_D"])
-    pattern_ok = pattern_info["direction"] == "SHORT" and pattern_info["strength"] >= 2
-    return vol_ok and macd_ok and stoch_ok and pattern_ok
+    vol_ok = row["Rel_Volume"] >= CONFIG["min_rel_volume"]
+    macd_ok = row["MACD"] < row["MACD_Signal"]
+    stoch_ok = (CONFIG["stoch_low"] <= row["Stoch_K"] <= CONFIG["stoch_high"]) and (row["Stoch_K"] <= row["Stoch_D"])
+    return vol_ok and macd_ok and stoch_ok
 
 def get_stock_info(ticker):
     try:
@@ -236,7 +234,7 @@ def scan_ticker(ticker):
 
 def run_robot():
     print("=" * 75)
-    print(" ROBOT ACCÉLÉRATEUR v2.1 – Scan quotidien US Options")
+    print(" ROBOT ACCÉLÉRATEUR v2.2 – Scan quotidien US Options")
     print(f" {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print("=" * 75)
     print(f" Univers : {len(UNIVERSE)} tickers high-beta")
@@ -255,6 +253,16 @@ def run_robot():
     print("-" * 75)
     print(f" Scan terminé : {total} titres | Setups validés : {len(results)}")
     print("=" * 75)
+
+    with open("report_body.txt", "w", encoding="utf-8") as f:
+        f.write("Robot Accelerateur - Rapport quotidien\n")
+        f.write("Setups valides : %s\n\n" % len(results))
+        if not results:
+            f.write("Aucun setup aujourd'hui.\n")
+        else:
+            for r in results:
+                f.write("- %s | %s | Prix %s | RelVol %s | %s\n" % (r["Ticker"], r["Direction"], r["Price"], r["Rel_Volume"], r.get("Pattern")))
+
     if not results:
         print("\n❌ Aucun setup ne valide les 4 conditions aujourd'hui.\n")
         pd.DataFrame().to_csv("report_latest.csv", index=False)

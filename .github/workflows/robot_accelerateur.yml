@@ -2,9 +2,8 @@ name: Robot Accélérateur - Scan quotidien
 
 on:
   schedule:
-    # Tous les jours ouvrés à 21h00 UTC = 23h00 CEST (après clôture US)
     - cron: '0 21 * * 1-5'
-  workflow_dispatch:  # Permet de lancer manuellement depuis GitHub
+  workflow_dispatch:
 
 jobs:
   scan:
@@ -35,15 +34,22 @@ jobs:
           name: robot-report-${{ github.run_number }}
           path: |
             report_latest.csv
+            report_body.txt
             Robot_Accelerateur_Report_*.csv
+          if-no-files-found: ignore
           retention-days: 30
 
-      - name: Commit latest report (optional)
-        run: |
-          git config --local user.email "robot@github-actions.com"
-          git config --local user.name "Robot Accelerateur"
-          git add report_latest.csv || true
-          git diff --quiet && git diff --staged --quiet || git commit -m "Rapport quotidien Robot Accélérateur $(date +%Y-%m-%d)" || true
-          git push || true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Send daily email
+        if: always()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: Robot Accelerateur - Rapport quotidien
+          to: ${{ secrets.EMAIL_TO }}
+          from: Robot Accelerateur
+          body: file://report_body.txt
+          ignore_cert: true
