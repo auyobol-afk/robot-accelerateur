@@ -49,7 +49,7 @@ jobs:
           username: ${{ secrets.EMAIL_USERNAME }}
           password: ${{ secrets.EMAIL_PASSWORD }}
           subject: Robot Accelerateur - Rapport quotidien
-          to: ${{ secrets.EMAIL_TO }}
+          to: ${{ secrets.EMAIL_USERNAME }}
           from: Robot Accelerateur
           body: file://report_body.txt
           ignore_cert: true
