@@ -1,2 +1,4 @@
 Ticker,Direction,Price,Rel_Volume,Stoch_K,Pattern
-MDB,SHORT,333.52,2.42,24.0,3 indicateurs verts
+MDB,SHORT,337.19,2.86,26.6,3 indicateurs verts
+NCLH,LONG,14.81,1.3,71.4,3 indicateurs verts
+BE,LONG,291.28,1.3,79.2,3 indicateurs verts
