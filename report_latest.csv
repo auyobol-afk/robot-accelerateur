@@ -1,2 +1,4 @@
 Ticker,Direction,Price,Rel_Volume,Stoch_K,Pattern
-HOOD,SHORT,112.5,1.45,43.1,3 indicateurs verts
+HOOD,SHORT,112.5,1.49,43.1,3 indicateurs verts
+CCL,LONG,24.54,1.36,76.7,3 indicateurs verts
+NCLH,LONG,14.66,1.27,62.4,3 indicateurs verts
