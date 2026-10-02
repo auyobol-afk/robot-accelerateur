@@ -1,1 +1,3 @@
-
+Ticker,Direction,Price,Rel_Volume,Stoch_K,Pattern
+COIN,SHORT,183.0,1.3,46.3,3 indicateurs verts
+RKLB,LONG,73.92,1.24,84.9,3 indicateurs verts
