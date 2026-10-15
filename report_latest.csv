@@ -1,2 +1,4 @@
 Ticker,Direction,Price,Rel_Volume,Stoch_K,Pattern
-ANET,SHORT,185.57,1.51,18.2,3 indicateurs verts
+ANET,SHORT,185.55,1.76,18.2,3 indicateurs verts
+NET,SHORT,316.38,1.37,17.0,3 indicateurs verts
+AFRM,LONG,75.92,1.38,61.2,3 indicateurs verts
