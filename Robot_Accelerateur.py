@@ -178,7 +178,9 @@ def run_robot():
         time.sleep(CONFIG["sleep_between_tickers"])
     print("Scan termine : %s | Setups : %s" % (total, len(results)))
     write_html(results, total)
-    write_earnings_html(results)
+    # TEST cyclique – à retirer après vérification
+    test = [{"Ticker": "CCL", "Direction": "LONG", "Price": 22.0}]
+    write_earnings_html(results + test)
     pre, close_moves = scan_big_moves()
     write_moves_html(pre, close_moves)
     print("Mouvements pre-market :", len(pre))
@@ -270,6 +272,14 @@ CYCLICAL = {
     "RKT": "Printemps (immobilier)",
     "PLUG": "Selon projets hydrogène",
     "BE": "Selon projets énergie",
+    "UBER": "Été + vacances",
+    "ABNB": "Été + vacances",
+    "DKNG": "Sports (selon calendrier)",
+    "MARA": "Selon Bitcoin",
+    "RIOT": "Selon Bitcoin",
+    "CLSK": "Selon Bitcoin",
+    "SMCI": "Selon cycle data centers",
+    "VRT": "Selon cycle data centers",
 }
 
 def get_earnings_info(ticker):
