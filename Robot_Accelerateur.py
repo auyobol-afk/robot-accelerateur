@@ -178,6 +178,7 @@ def run_robot():
         time.sleep(CONFIG["sleep_between_tickers"])
     print("Scan termine : %s | Setups : %s" % (total, len(results)))
     write_html(results, total)
+    write_earnings_html(results)
     pre, close_moves = scan_big_moves()
     write_moves_html(pre, close_moves)
     print("Mouvements pre-market :", len(pre))
@@ -252,3 +253,80 @@ def write_moves_html(pre, close_moves):
 
 if __name__ == "__main__":
     run_robot()
+
+# ========== EARNINGS & CYCLIQUE ==========
+CYCLICAL = {
+    "CCL": "Été (Q2-Q3) – croisières",
+    "NCLH": "Été (Q2-Q3) – croisières",
+    "RCL": "Été (Q2-Q3) – croisières",
+    "DAL": "Été + vacances",
+    "UAL": "Été + vacances",
+    "AAL": "Été + vacances",
+    "ENPH": "Printemps-été (solaire)",
+    "FSLR": "Printemps-été (solaire)",
+}
+
+def get_earnings_info(ticker):
+    try:
+        tk = yf.Ticker(ticker)
+        info = tk.info or {}
+        next_date = info.get("earningsTimestamp") or info.get("earningsDate")
+        if isinstance(next_date, (list, tuple)) and next_date:
+            next_date = next_date[0]
+        eps_est = info.get("forwardEps") or info.get("trailingEps")
+        return {
+            "next_earnings": str(next_date)[:10] if next_date else "N/A",
+            "eps_est": round(float(eps_est), 2) if eps_est else "N/A",
+        }
+    except Exception:
+        return {"next_earnings": "N/A", "eps_est": "N/A"}
+
+def is_cyclical(ticker):
+    return ticker in CYCLICAL, CYCLICAL.get(ticker, "")
+
+def get_peak_earnings_comparison(ticker):
+    try:
+        tk = yf.Ticker(ticker)
+        qe = tk.quarterly_earnings
+        if qe is None or qe.empty:
+            return None
+        recent = qe.tail(3)
+        rows = []
+        for idx, row in recent.iterrows():
+            eps = row.get("Earnings", "N/A")
+            rev = row.get("Revenue", "N/A")
+            rows.append({
+                "period": str(idx),
+                "eps": round(float(eps), 2) if str(eps) != "N/A" else "N/A",
+                "revenue": round(float(rev)/1e6, 1) if str(rev) != "N/A" else "N/A",
+            })
+        return rows
+    except Exception:
+        return None
+
+def write_earnings_html(setups):
+    lines = [
+        "<html><head><meta charset='utf-8'><title>Earnings & Cyclique</title></head><body>",
+        "<h1>Robot Accelerateur – Earnings & Activité cyclique</h1>",
+        f"<p>{datetime.now().strftime('%Y-%m-%d %H:%M')}</p>",
+        "<h2>Titres avec setup + infos earnings</h2>",
+    ]
+    if not setups:
+        lines.append("<p>Aucun setup aujourd'hui.</p>")
+    else:
+        for r in setups:
+            earn = get_earnings_info(r["Ticker"])
+            cyclic, period = is_cyclical(r["Ticker"])
+            lines.append(f"<h3>{r['Ticker']} – {r['Direction']}</h3>")
+            lines.append(f"<p>Prochain earnings : {earn['next_earnings']} | EPS estimé : {earn['eps_est']}</p>")
+            if cyclic:
+                lines.append(f"<p><b>Activité cyclique</b> – Période forte : {period}</p>")
+                comp = get_peak_earnings_comparison(r["Ticker"])
+                if comp:
+                    lines.append("<table border='1'><tr><th>Période</th><th>EPS</th><th>Revenu (M$)</th></tr>")
+                    for c in comp:
+                        lines.append(f"<tr><td>{c['period']}</td><td>{c['eps']}</td><td>{c['revenue']}</td></tr>")
+                    lines.append("</table>")
+            lines.append("<hr>")
+    lines.append("</body></html>")
+    open("rapport_earnings.html", "w", encoding="utf-8").write("\\n".join(lines))
