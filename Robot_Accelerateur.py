@@ -270,6 +270,9 @@ def get_earnings_info(ticker):
         next_date = info.get("earningsTimestamp") or info.get("earningsDate")
         if isinstance(next_date, (list, tuple)) and next_date:
             next_date = next_date[0]
+        if isinstance(next_date, (int, float)) and next_date > 1e9:
+            from datetime import datetime
+            next_date = datetime.utcfromtimestamp(next_date).strftime("%Y-%m-%d")
         eps_est = info.get("forwardEps") or info.get("trailingEps")
         return {
             "next_earnings": str(next_date)[:10] if next_date else "N/A",
@@ -326,7 +329,7 @@ def write_earnings_html(setups):
                     lines.append("</table>")
             lines.append("<hr>")
     lines.append("</body></html>")
-    open("rapport_earnings.html", "w", encoding="utf-8").write("\\n".join(lines))
+    open("rapport_earnings.html", "w", encoding="utf-8").write("\n".join(lines))
 
 if __name__ == "__main__":
     run_robot()
