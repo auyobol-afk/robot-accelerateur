@@ -261,6 +261,15 @@ CYCLICAL = {
     "AAL": "Été + vacances",
     "ENPH": "Printemps-été (solaire)",
     "FSLR": "Printemps-été (solaire)",
+    "SHOP": "Q4 (fêtes)",
+    "SNAP": "Q4 (pubs)",
+    "ROKU": "Q4 (pubs + fêtes)",
+    "CVNA": "Printemps-été (auto)",
+    "OPEN": "Printemps (immobilier)",
+    "Z": "Printemps (immobilier)",
+    "RKT": "Printemps (immobilier)",
+    "PLUG": "Selon projets hydrogène",
+    "BE": "Selon projets énergie",
 }
 
 def get_earnings_info(ticker):
@@ -274,12 +283,15 @@ def get_earnings_info(ticker):
             from datetime import datetime
             next_date = datetime.utcfromtimestamp(next_date).strftime("%Y-%m-%d")
         eps_est = info.get("forwardEps") or info.get("trailingEps")
+        # Guidance approximative via target et estimations
+        guidance = info.get("targetMeanPrice") or info.get("recommendationKey")
         return {
             "next_earnings": str(next_date)[:10] if next_date else "N/A",
             "eps_est": round(float(eps_est), 2) if eps_est else "N/A",
+            "guidance": str(guidance) if guidance else "N/A",
         }
     except Exception:
-        return {"next_earnings": "N/A", "eps_est": "N/A"}
+        return {"next_earnings": "N/A", "eps_est": "N/A", "guidance": "N/A"}
 
 def is_cyclical(ticker):
     return ticker in CYCLICAL, CYCLICAL.get(ticker, "")
@@ -318,7 +330,7 @@ def write_earnings_html(setups):
             earn = get_earnings_info(r["Ticker"])
             cyclic, period = is_cyclical(r["Ticker"])
             lines.append(f"<h3>{r['Ticker']} – {r['Direction']}</h3>")
-            lines.append(f"<p>Prochain earnings : {earn['next_earnings']} | EPS estimé : {earn['eps_est']}</p>")
+            lines.append(f"<p>Prochain earnings : {earn['next_earnings']} | EPS estimé : {earn['eps_est']} | Guidance / cible : {earn.get('guidance', 'N/A')}</p>")
             if cyclic:
                 lines.append(f"<p><b>Activité cyclique</b> – Période forte : {period}</p>")
                 comp = get_peak_earnings_comparison(r["Ticker"])
