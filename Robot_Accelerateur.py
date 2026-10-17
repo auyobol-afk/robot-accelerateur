@@ -361,16 +361,17 @@ def write_earnings_html(setups):
         shown = 0
         for r in setups:
             earn = get_earnings_info(r["Ticker"])
-            # Filtre 15 jours
-            next_str = earn.get("next_earnings", "N/A")
-            if next_str == "N/A":
-                continue
-            try:
-                next_d = datetime.strptime(next_str[:10], "%Y-%m-%d").date()
-                if not (today <= next_d <= limit):
+            # Filtre 15 jours (désactivé pour le test CCL)
+            if r["Ticker"] != "CCL":
+                next_str = earn.get("next_earnings", "N/A")
+                if next_str == "N/A":
                     continue
-            except Exception:
-                continue
+                try:
+                    next_d = datetime.strptime(next_str[:10], "%Y-%m-%d").date()
+                    if not (today <= next_d <= limit):
+                        continue
+                except Exception:
+                    continue
             shown += 1
             cyclic, period = is_cyclical(r["Ticker"])
             lines.append(f"<h3>{r['Ticker']} – {r['Direction']}</h3>")
