@@ -154,7 +154,7 @@ def write_html(results, total):
              "<p>%s</p>" % datetime.now().strftime("%Y-%m-%d %H:%M"),
              "<p>Titres scannes : %s | Setups : %s</p>" % (total, len(results))]
     if not results:
-        lines.append("<p>Aucun setup aujourd'hui.</p>")
+        lines.append("<p>Aucun setup avec earnings dans les 15 prochains jours.</p>")
     else:
         lines.append("<ul>")
         for r in results:
@@ -344,10 +344,24 @@ def write_earnings_html(setups):
         "<h2>Titres avec setup + infos earnings</h2>",
     ]
     if not setups:
-        lines.append("<p>Aucun setup aujourd'hui.</p>")
+        lines.append("<p>Aucun setup avec earnings dans les 15 prochains jours.</p>")
     else:
+        today = datetime.now().date()
+        limit = today + timedelta(days=15)
+        shown = 0
         for r in setups:
             earn = get_earnings_info(r["Ticker"])
+            # Filtre 15 jours
+            next_str = earn.get("next_earnings", "N/A")
+            if next_str == "N/A":
+                continue
+            try:
+                next_d = datetime.strptime(next_str[:10], "%Y-%m-%d").date()
+                if not (today <= next_d <= limit):
+                    continue
+            except Exception:
+                continue
+            shown += 1
             cyclic, period = is_cyclical(r["Ticker"])
             lines.append(f"<h3>{r['Ticker']} – {r['Direction']}</h3>")
             lines.append(f"<p>Prochain earnings : {earn['next_earnings']} | EPS estimé : {earn['eps_est']} | Guidance / cible : {earn.get('guidance', 'N/A')}</p>")
