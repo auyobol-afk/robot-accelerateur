@@ -299,10 +299,30 @@ def is_cyclical(ticker):
 def get_peak_earnings_comparison(ticker):
     try:
         tk = yf.Ticker(ticker)
+        # Essayer quarterly_financials pour plus d'historique
+        qf = tk.quarterly_financials
+        if qf is not None and not qf.empty:
+            # Prendre les 6 derniers trimestres max
+            cols = list(qf.columns)[:6]
+            rows = []
+            for col in cols:
+                eps = None
+                rev = None
+                if "Net Income" in qf.index:
+                    eps = qf.loc["Net Income", col]
+                if "Total Revenue" in qf.index:
+                    rev = qf.loc["Total Revenue", col]
+                rows.append({
+                    "period": str(col)[:10],
+                    "eps": round(float(eps)/1e6, 1) if eps and str(eps) != "nan" else "N/A",
+                    "revenue": round(float(rev)/1e6, 1) if rev and str(rev) != "nan" else "N/A",
+                })
+            return rows if rows else None
+        # Fallback sur quarterly_earnings
         qe = tk.quarterly_earnings
         if qe is None or qe.empty:
             return None
-        recent = qe.tail(3)
+        recent = qe.tail(6)
         rows = []
         for idx, row in recent.iterrows():
             eps = row.get("Earnings", "N/A")
