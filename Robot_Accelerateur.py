@@ -251,9 +251,6 @@ def write_moves_html(pre, close_moves):
     open("rapport_mouvements.html", "w", encoding="utf-8").write("\n".join(lines))
 
 
-if __name__ == "__main__":
-    run_robot()
-
 # ========== EARNINGS & CYCLIQUE ==========
 CYCLICAL = {
     "CCL": "Été (Q2-Q3) – croisières",
@@ -330,3 +327,7 @@ def write_earnings_html(setups):
             lines.append("<hr>")
     lines.append("</body></html>")
     open("rapport_earnings.html", "w", encoding="utf-8").write("\\n".join(lines))
+
+if __name__ == "__main__":
+    run_robot()
+
