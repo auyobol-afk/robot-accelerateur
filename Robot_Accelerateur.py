@@ -178,9 +178,7 @@ def run_robot():
         time.sleep(CONFIG["sleep_between_tickers"])
     print("Scan termine : %s | Setups : %s" % (total, len(results)))
     write_html(results, total)
-    # TEST cyclique – à retirer après vérification
-    test = [{"Ticker": "CCL", "Direction": "LONG", "Price": 22.0}]
-    write_earnings_html(results + test)
+    write_earnings_html(results)
     pre, close_moves = scan_big_moves()
     write_moves_html(pre, close_moves)
     print("Mouvements pre-market :", len(pre))
@@ -361,17 +359,16 @@ def write_earnings_html(setups):
         shown = 0
         for r in setups:
             earn = get_earnings_info(r["Ticker"])
-            # Filtre 15 jours (désactivé pour le test CCL)
-            if r["Ticker"] != "CCL":
-                next_str = earn.get("next_earnings", "N/A")
-                if next_str == "N/A":
+            # Filtre 15 jours
+            next_str = earn.get("next_earnings", "N/A")
+            if next_str == "N/A":
+                continue
+            try:
+                next_d = datetime.strptime(next_str[:10], "%Y-%m-%d").date()
+                if not (today <= next_d <= limit):
                     continue
-                try:
-                    next_d = datetime.strptime(next_str[:10], "%Y-%m-%d").date()
-                    if not (today <= next_d <= limit):
-                        continue
-                except Exception:
-                    continue
+            except Exception:
+                continue
             shown += 1
             cyclic, period = is_cyclical(r["Ticker"])
             lines.append(f"<h3>{r['Ticker']} – {r['Direction']}</h3>")
