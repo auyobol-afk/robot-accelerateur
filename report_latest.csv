@@ -1,1 +1,9 @@
-
+Ticker,Direction,Price,Rel_Volume,Stoch_K,Pattern
+SMCI,SHORT,33.72,1.21,18.9,3 indicateurs verts
+WDC,SHORT,354.19,1.41,19.3,3 indicateurs verts
+QCOM,SHORT,172.83,1.41,24.0,3 indicateurs verts
+NXPI,LONG,237.79,2.11,71.7,3 indicateurs verts
+MCHP,SHORT,74.52,1.76,37.2,3 indicateurs verts
+DDOG,SHORT,257.75,1.31,24.8,3 indicateurs verts
+SHOP,SHORT,168.81,1.33,58.6,3 indicateurs verts
+WULF,SHORT,11.32,1.33,17.3,3 indicateurs verts
