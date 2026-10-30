@@ -1,1 +1,5 @@
-
+Ticker,Direction,Price,Rel_Volume,Stoch_K,Pattern
+ON,SHORT,71.67,1.59,20.9,3 indicateurs verts
+LRCX,SHORT,239.11,1.74,17.8,3 indicateurs verts
+AMAT,SHORT,390.09,1.42,15.3,3 indicateurs verts
+ROKU,SHORT,155.12,1.76,41.5,3 indicateurs verts
