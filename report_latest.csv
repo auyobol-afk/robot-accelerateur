@@ -1,8 +1,2 @@
 Ticker,Direction,Price,Rel_Volume,Stoch_K,Pattern
-APP,LONG,271.75,2.99,83.7,3 indicateurs verts
-AFRM,LONG,75.59,1.77,72.0,3 indicateurs verts
-MARA,LONG,6.87,1.27,26.9,3 indicateurs verts
-RIOT,LONG,15.37,3.62,81.7,3 indicateurs verts
-BE,SHORT,200.4,1.45,21.8,3 indicateurs verts
-COMP,LONG,10.04,1.22,83.9,3 indicateurs verts
-Z,LONG,33.9,1.39,84.2,3 indicateurs verts
+QCOM,SHORT,155.08,1.66,18.3,3 indicateurs verts
