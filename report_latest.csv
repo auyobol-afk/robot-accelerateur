@@ -1,7 +1,2 @@
 Ticker,Direction,Price,Rel_Volume,Stoch_K,Pattern
-QCOM,SHORT,156.75,3.1,22.8,3 indicateurs verts
-AFRM,SHORT,69.66,1.84,15.4,3 indicateurs verts
-UPST,SHORT,22.14,1.45,35.9,3 indicateurs verts
-SHOP,SHORT,143.75,1.27,19.0,3 indicateurs verts
-RGTI,SHORT,9.85,1.65,19.4,3 indicateurs verts
-IONQ,SHORT,26.43,1.53,18.0,3 indicateurs verts
+WULF,SHORT,10.43,1.23,23.3,3 indicateurs verts
