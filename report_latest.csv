@@ -1,7 +1,4 @@
 Ticker,Direction,Price,Rel_Volume,Stoch_K,Pattern
-AFRM,SHORT,68.11,2.33,17.5,3 indicateurs verts
-CIFR,LONG,6.55,1.33,33.9,Marteau
-WULF,LONG,11.37,1.95,47.3,Marteau
-FSLR,LONG,201.14,1.4,72.0,3 indicateurs verts
-RGTI,LONG,11.75,1.81,75.3,3 indicateurs verts
-SMR,LONG,5.08,1.34,43.9,3 indicateurs verts
+NXPI,LONG,256.42,1.63,58.9,3 indicateurs verts
+DKNG,SHORT,18.7,1.48,29.3,3 indicateurs verts
+QBTS,LONG,11.47,1.24,78.7,3 indicateurs verts
