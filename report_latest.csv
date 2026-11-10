@@ -1,1 +1,3 @@
-
+Ticker,Direction,Price,Rel_Volume,Stoch_K,Pattern
+MARA,LONG,7.34,1.69,82.1,3 indicateurs verts
+ASTS,SHORT,33.69,1.41,35.4,3 indicateurs verts
